@@ -25,6 +25,5 @@ public class DynamicTimeWarpingTest {
 		int[] timeSeriesTwo = {4, 5, 6, 8, 400};
 		double warpingDistance = DynamicTimeWarping.dynamicTimeWarping(timeSeriesOne, timeSeriesTwo, new EuclideanDistance());
 		assertEquals(LARGE_WARPING_DISTANCE, warpingDistance, DELTA);
-		System.out.println(warpingDistance);
 	}
 }

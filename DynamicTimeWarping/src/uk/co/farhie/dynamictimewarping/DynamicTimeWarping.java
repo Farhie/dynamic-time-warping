@@ -4,7 +4,7 @@ import uk.co.farhie.util.DistanceFunction;
 
 public class DynamicTimeWarping {
 
-	public static Double dynamicTimeWarping(int[] seriesOne, int[] seriesTwo, DistanceFunction chosenDistanceFunction) {
+	public static double dynamicTimeWarping(int[] seriesOne, int[] seriesTwo, DistanceFunction chosenDistanceFunction) {
 		Double cumulativeWarpPathDistance = 0.0;
 		DistanceFunction distanceFunction = chosenDistanceFunction;
 		int seriesOneLength = seriesOne.length;
