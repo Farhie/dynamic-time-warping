@@ -3,82 +3,47 @@ package uk.co.farhie.dynamictimewarping;
 import uk.co.farhie.util.DistanceFunction;
 
 public class DynamicTimeWarping {
-	
+
 	public static Double dynamicTimeWarping(int[] seriesOne, int[] seriesTwo, DistanceFunction chosenDistanceFunction) {
-		Double cumulativeWarpPathCost;
+		Double cumulativeWarpPathDistance = 0.0;
 		DistanceFunction distanceFunction = chosenDistanceFunction;
-		double[][] dynamicTimeWarping = new double[seriesOne.length][seriesTwo.length];
+		int seriesOneLength = seriesOne.length;
+		int seriesTwoLength = seriesTwo.length;
 		
-		initialiseDynamicTimeWarpingMatrix(seriesOne, seriesTwo, dynamicTimeWarping);
-		
-		for(int i = 1; i < seriesOne.length; i++){
-			for(int j = 1; j < seriesTwo.length; j++){
-				cumulativeWarpPathCost = distanceFunction.calculateDistance(seriesOne[i], seriesTwo[j]);
-				dynamicTimeWarping[i][j] = cumulativeWarpPathCost + minimumValue(dynamicTimeWarping, i, j);
+		double[][] localDistance = new double[seriesOneLength][seriesTwoLength];
+		double[][] globalDistance = new double[seriesOneLength][seriesTwoLength];
+
+		for (int i = 0; i < seriesOneLength; i++) {
+			for (int j = 0; j < seriesTwoLength; j++) {
+				localDistance[i][j] = distanceFunction.calculateDistance(seriesOne[i], seriesTwo[j]);
 			}
 		}
-		
-		
-		
-		return dynamicTimeWarping[seriesOne.length - 1][seriesTwo.length - 1];
+		globalDistance[0][0] = localDistance[0][0];
+
+		for (int i = 1; i < seriesOneLength; i++) {
+			globalDistance[i][0] = localDistance[i][0] + globalDistance[i - 1][0];
+		}
+
+		for (int i = 1; i < seriesOneLength; i++) {
+			globalDistance[i][0] = localDistance[i][0] + globalDistance[i - 1][0];
+		}
+
+		for (int j = 1; j < seriesTwoLength; j++) {
+			globalDistance[0][j] = localDistance[0][j] + globalDistance[0][j - 1];
+		}
+
+		for (int i = 1; i < seriesOneLength; i++) {
+			for (int j = 1; j < seriesTwoLength; j++) {
+				cumulativeWarpPathDistance = minimumValueFrom(globalDistance[i - 1][j], globalDistance[i - 1][j - 1], globalDistance[i][j - 1]);
+				cumulativeWarpPathDistance = cumulativeWarpPathDistance + localDistance[i][j];
+				globalDistance[i][j] = cumulativeWarpPathDistance;
+			}
+		}
+
+		return globalDistance[seriesOneLength - 1][seriesTwoLength - 1];
 	}
 
-	private static void initialiseDynamicTimeWarpingMatrix(int[] seriesOne, int[] seriesTwo, double[][] dynamicTimeWarping) {
-		for(int i = 0; i < seriesOne.length; i++){
-			dynamicTimeWarping[i][0] = Double.POSITIVE_INFINITY;
-		}
-		
-		for(int i = 0; i < seriesTwo.length; i++){
-			dynamicTimeWarping[0][i] = Double.POSITIVE_INFINITY;
-		}
-		
-		dynamicTimeWarping[0][0] = 0.0;
-	}
-
-	private static Double minimumValue(double[][] dynamicTimeWarping, int i, int j) {
-		double leftCell = getValueInCellToTheLeft(dynamicTimeWarping, i, j);
-		double diagonalCell = getValueInCellDiagonal(dynamicTimeWarping, i, j);
-		double belowCell = getValueInCellBelow(dynamicTimeWarping, i, j);
-		
-		return smallestOfThreeValues(leftCell, diagonalCell, belowCell);
-	}
-
-	private static double getValueInCellToTheLeft(double[][] dynamicTimeWarping, int i, int j) {
-		if(i != 0) {
-			return dynamicTimeWarping[i-1][j];
-		} else {
-			return Double.POSITIVE_INFINITY;
-		}
-	}
-
-	private static double getValueInCellDiagonal(double[][] dynamicTimeWarping, int i, int j) {
-		if(j!= 0) {			
-			return dynamicTimeWarping[i][j-1];
-		} else {
-			return Double.POSITIVE_INFINITY;
-		}
-	}
-	
-	private static double getValueInCellBelow(double[][] dynamicTimeWarping, int i, int j) {
-		if(i != 0 && j != 0){
-			return dynamicTimeWarping[i-1][j-1];
-		} else {
-			return Double.POSITIVE_INFINITY;
-		}
-	}
-	
-	private static Double smallestOfThreeValues(double leftCell, double diagonalCell, double belowCell) {
-		if(leftCell < diagonalCell && leftCell < belowCell) {
-			return leftCell;
-		}
-		
-		if(diagonalCell < leftCell && diagonalCell < belowCell) {
-			return diagonalCell;
-		}
-		
-		if(belowCell < leftCell && belowCell < diagonalCell) {
-			return belowCell;
-		}
-		return belowCell;
+	private static double minimumValueFrom(double cellToTheLeft, double cellToLeftAndDown, double cellBelow) {
+		return Math.min(Math.min(cellToTheLeft, cellToLeftAndDown), cellBelow);
 	}
 }
