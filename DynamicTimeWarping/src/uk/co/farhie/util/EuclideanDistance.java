@@ -17,4 +17,11 @@ public class EuclideanDistance implements DistanceFunction {
 		return Math.sqrt(squareSum);
 	}
 
+	@Override
+	public double calculateDistance(int vectorOne, int vectorTwo) {
+		int[] arrayVectorOne = {vectorOne};
+		int[] arrayVectorTwo = {vectorTwo};
+		return calculateDistance(arrayVectorOne, arrayVectorTwo);
+	}
+
 }
